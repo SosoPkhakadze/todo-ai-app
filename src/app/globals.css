@@ -1,26 +1,179 @@
-@import "tailwindcss";
+/* src/app/globals.css */
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* AI ToDo App Design System - Modern Tech Vibes */
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Core App Colors */
+    --background: 220 13% 97.5%;
+    --foreground: 220 9% 9%;
+    
+    /* Card & Surface Colors */
+    --card: 0 0% 100%;
+    --card-foreground: 220 9% 9%;
+    --card-hover: 220 13% 98%;
+    
+    /* Brand Colors - Indigo Primary */
+    --primary: 238 83% 61%;        /* #4F46E5 */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 238 83% 70%;
+    
+    /* Accent Colors - Cyan Secondary */
+    --secondary: 186 100% 58%;     /* #22D3EE */
+    --secondary-foreground: 220 9% 9%;
+    --secondary-glow: 186 100% 68%;
+    
+    /* Success Color - Light Green for completed tasks */
+    --success: 84 81% 56%;         /* #A3E635 */
+    --success-foreground: 220 9% 9%;
+    
+    /* Neutral Colors */
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 9% 46%;
+    --border: 220 13% 91%;
+    --input: 220 13% 95%;
+    --ring: 238 83% 61%;
+    
+    /* Interactive States */
+    --accent: 220 13% 93%;
+    --accent-foreground: 220 9% 9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Design System Tokens */
+    --radius: 0.75rem;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-surface: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    --shadow-soft: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.2);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Sidebar styles from old project - can be kept for consistency */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark Mode Core Colors */
+    --background: 220 27% 8%;
+    --foreground: 220 9% 95%;
+    
+    /* Dark Card & Surface Colors */
+    --card: 220 27% 12%;
+    --card-foreground: 220 9% 95%;
+    --card-hover: 220 27% 15%;
+    
+    /* Dark Brand Colors */
+    --primary: 238 83% 68%;        /* Brighter indigo for dark */
+    --primary-foreground: 220 27% 8%;
+    --primary-glow: 238 83% 75%;
+    
+    /* Dark Accent Colors */
+    --secondary: 186 100% 65%;     /* Brighter cyan for dark */
+    --secondary-foreground: 220 27% 8%;
+    --secondary-glow: 186 100% 72%;
+    
+    /* Dark Success Color */
+    --success: 84 81% 63%;         /* Brighter green for dark */
+    --success-foreground: 220 27% 8%;
+    
+    /* Dark Neutral Colors */
+    --muted: 220 27% 15%;
+    --muted-foreground: 220 9% 65%;
+    --border: 220 27% 18%;
+    --input: 220 27% 15%;
+    --ring: 238 83% 68%;
+    
+    /* Dark Interactive States */
+    --accent: 220 27% 18%;
+    --accent-foreground: 220 9% 95%;
+    --destructive: 0 75% 65%;
+    --destructive-foreground: 220 9% 95%;
+
+    /* Sidebar styles from old project - can be kept for consistency */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+}
+
+@layer components {
+  /* Task Animation Keyframes */
+  .task-enter {
+    animation: slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .task-exit {
+    animation: slideOutDown 0.3s ease-in-out;
+  }
+  
+  .task-complete {
+    animation: completeTask 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .glow-effect {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes slideOutDown {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+  }
+  
+  @keyframes completeTask {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
 }
