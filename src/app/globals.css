@@ -11,6 +11,9 @@
     /* Core App Colors */
     --background: 220 13% 97.5%;
     --foreground: 220 9% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 9% 9%;
     
     /* Card & Surface Colors */
     --card: 0 0% 100%;
@@ -69,6 +72,9 @@
     /* Dark Mode Core Colors */
     --background: 220 27% 8%;
     --foreground: 220 9% 95%;
+
+    --popover: 220 27% 12%;
+    --popover-foreground: 220 9% 95%;
     
     /* Dark Card & Surface Colors */
     --card: 220 27% 12%;
@@ -116,13 +122,18 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
-  }
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }  
 }
+
 
 @layer components {
   /* Task Animation Keyframes */
@@ -177,3 +188,4 @@
     100% { transform: scale(1); }
   }
 }
+
