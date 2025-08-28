@@ -3,10 +3,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // Use the Service Role Key on the server
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function POST(request: Request) {
@@ -19,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const userIdentifier = "user@example.com";
 
-    const { data, error } = await supabase
+    const { data: newTask, error } = await supabase
       .from('tasks')
       .insert({ title, is_complete: false, user_identifier: userIdentifier })
       .select()
@@ -27,12 +26,19 @@ export async function POST(request: Request) {
 
     if (error) throw error;
     
-    // --- N8N TRIGGER WILL GO HERE ---
-    console.log("Task created via API, would trigger N8N now with data:", data);
+    if (process.env.N8N_WEBHOOK_URL) {
+      fetch(process.env.N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTask),
+      }).catch(err => {
+        console.error("Error calling N8N webhook:", err);
+      });
+    }
 
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json(newTask, { status: 201 });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) { // CHANGED from 'any' to 'unknown'
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 }); // Type-cast the error
   }
 }

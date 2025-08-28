@@ -1,3 +1,5 @@
+// src/components/ui/command.tsx
+
 import * as React from "react"
 import { type DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
@@ -21,9 +23,12 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
-interface CommandDialogProps extends DialogProps {}
+// --- THIS IS THE FIX ---
+type CommandDialogProps = DialogProps 
+// --- END OF FIX ---
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
+// ... rest of the file is the same
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-hidden p-0 shadow-lg">
