@@ -1,30 +1,22 @@
 // src/app/page.tsx
 
-"use client"; // REQUIRED for hooks like useState, useEffect
+"use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Brain } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TaskInput } from "@/components/TaskInput";
 import { TaskCard, Task } from "@/components/TaskCard";
 import { FilterTabs, FilterType } from "@/components/FilterTabs";
-import { useToast } from "@/components/ui/use-toast"; // Correct import path
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 
-// NOTE: The Task type is now correctly imported from TaskCard.tsx
-// Ensure TaskCard.tsx has the updated type with 'is_complete'
-
-export default function HomePage() { // Renamed from Index to HomePage
+export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<FilterType>("all");
   const { toast } = useToast();
 
-  useEffect(() => {
-    getTasks();
-  }, []);
-
-  // This function can remain the same, it fetches via client-side Supabase client
-  async function getTasks() {
+  const getTasks = useCallback(async () => {
     try {
       const userIdentifier = "user@example.com";
       const { data, error } = await supabase
@@ -34,12 +26,15 @@ export default function HomePage() { // Renamed from Index to HomePage
         .order('created_at', { ascending: false });
       if (error) throw error;
       if (data) setTasks(data);
-    } catch (error: any) {
-      toast({ title: "Error fetching tasks", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error fetching tasks", description: (error as Error).message, variant: "destructive" });
     }
-  }
+  }, [toast]);
 
-  // UPDATED addTask to call our new Next.js API route
+  useEffect(() => {
+    getTasks();
+  }, [getTasks]);
+
   const addTask = async (title: string) => {
     try {
       const response = await fetch('/api/tasks', {
@@ -54,43 +49,48 @@ export default function HomePage() { // Renamed from Index to HomePage
       const newTask = await response.json();
       setTasks([newTask, ...tasks]);
       toast({ title: "Task added!", description: "Your new task has been created." });
-    } catch (error: any) {
-      toast({ title: "Error adding task", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error adding task", description: (error as Error).message, variant: "destructive" });
     }
   };
 
-  // The other functions (toggle, delete, edit) can remain the same for now,
-  // as they interact directly with Supabase via the client-side helper.
   const toggleTask = async (id: string) => {
-    const taskToUpdate = tasks.find(task => task.id === id);
-    if (!taskToUpdate) return;
-    const newStatus = !taskToUpdate.is_complete;
-    const { data, error } = await supabase.from('tasks').update({ is_complete: newStatus }).eq('id', id).select().single();
-    if (error) {
-      toast({ title: "Error updating task", description: error.message, variant: "destructive" });
-    } else if (data) {
-      setTasks(tasks.map(task => (task.id === id ? data : task)));
-      toast({ title: newStatus ? "Task completed! 🎉" : "Task reopened" });
+    try {
+        const taskToUpdate = tasks.find(task => task.id === id);
+        if (!taskToUpdate) return;
+        const newStatus = !taskToUpdate.is_complete;
+        const { data, error } = await supabase.from('tasks').update({ is_complete: newStatus }).eq('id', id).select().single();
+        if (error) throw error;
+        if (data) {
+          setTasks(tasks.map(task => (task.id === id ? data : task)));
+          toast({ title: newStatus ? "Task completed! 🎉" : "Task reopened" });
+        }
+    } catch (error: unknown) {
+        toast({ title: "Error updating task", description: (error as Error).message, variant: "destructive" });
     }
   };
 
   const deleteTask = async (id: string) => {
-    const { error } = await supabase.from('tasks').delete().eq('id', id);
-    if (error) {
-      toast({ title: "Error deleting task", description: error.message, variant: "destructive" });
-    } else {
-      setTasks(tasks.filter(task => task.id !== id));
-      toast({ title: "Task deleted" });
+    try {
+        const { error } = await supabase.from('tasks').delete().eq('id', id);
+        if (error) throw error;
+        setTasks(tasks.filter(task => task.id !== id));
+        toast({ title: "Task deleted" });
+    } catch (error: unknown) {
+        toast({ title: "Error deleting task", description: (error as Error).message, variant: "destructive" });
     }
   };
 
   const editTask = async (id: string, newTitle: string) => {
-    const { data, error } = await supabase.from('tasks').update({ title: newTitle }).eq('id', id).select().single();
-    if (error) {
-      toast({ title: "Error updating title", description: error.message, variant: "destructive" });
-    } else if (data) {
-      setTasks(tasks.map(task => (task.id === id ? data : task)));
-      toast({ title: "Task updated" });
+    try {
+        const { data, error } = await supabase.from('tasks').update({ title: newTitle }).eq('id', id).select().single();
+        if (error) throw error;
+        if (data) {
+          setTasks(tasks.map(task => (task.id === id ? data : task)));
+          toast({ title: "Task updated" });
+        }
+    } catch (error: unknown) {
+        toast({ title: "Error updating title", description: (error as Error).message, variant: "destructive" });
     }
   };
 
@@ -115,7 +115,7 @@ export default function HomePage() { // Renamed from Index to HomePage
       <div 
         className="absolute inset-0 opacity-30 dark:opacity-20"
         style={{
-          backgroundImage: `url(/hero-bg.jpg)`, // Corrected path for public folder
+          backgroundImage: `url(/hero-bg.jpg)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
@@ -137,7 +137,7 @@ export default function HomePage() { // Renamed from Index to HomePage
         <main className="container max-w-4xl mx-auto px-6 py-12">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-              What's on your mind today?
+              What&apos;s on your mind today?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Organize your thoughts, boost your productivity, and let AI help you achieve more.
